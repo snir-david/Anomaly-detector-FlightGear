@@ -52,7 +52,12 @@ float cov(float* x, float* y, int size){
 
 // returns the Pearson correlation coefficient of X and Y
 float pearson(float* x, float* y, int size){
-    return 0;
+    float pearson, covXY, sigmaX, sigmaY;
+    sigmaX = sqrt(var(x, size));
+    sigmaY = sqrt(var(y, size));
+    covXY = cov(x, y, size);
+    pearson = covXY/(sigmaX * sigmaY);
+    return pearson;
 }
 
 // performs a linear regression and returns the line equation
