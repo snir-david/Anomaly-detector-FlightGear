@@ -8,7 +8,7 @@
 #include "anomaly_detection_util.h"
 
 float avg(float* x, int size){
-    float sum, avg;
+    float avg, sum = 0;
     for (int i = 0; i < size; ++i) {
         sum += x[i];
     }
@@ -18,20 +18,35 @@ float avg(float* x, int size){
 
 // returns the variance of X and Y
 float var(float* x, int size){
-    float variance, varianceSum, mean;
+    //initialize variables for the function
+    float variance,  mean, varianceSum = 0;
     //calculating the mean
     mean = avg(x, size);
     //calculating the sum in the variance
-    for(int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         varianceSum += pow((x[i] - mean), 2);
     }
-    variance = (1.00/(float) size) * varianceSum;
+    //calculating the variance using the equation - Var(X)= (1/N) * SUM- from i=0 to N of (x_i-u)
+    variance = (1.00 / (float) size) * varianceSum;
     return variance;
 }
 
 // returns the covariance of X and Y
 float cov(float* x, float* y, int size){
-    return 0;
+    //initialize variables for the function
+    float eX, eY, eXY, covXY;
+    //initialize array for the E[XY]
+    float xy[size - 1];
+    for (int i = 0; i < size; ++i) {
+        xy[i] = x[i] * y[i];
+    }
+    //calculating the variables E[XY], E[X], E[Y]
+    eXY = avg(xy, size);
+    eX = avg(x, size);
+    eY = avg(y, size);
+    //calculating the covariance using the equation - cov(X,Y) = E(XY)-E(X)E(Y)
+    covXY = eXY - eX * eY;
+    return covXY;
 }
 
 
