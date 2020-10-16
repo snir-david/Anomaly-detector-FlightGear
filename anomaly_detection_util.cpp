@@ -52,10 +52,14 @@ float cov(float* x, float* y, int size){
 
 // returns the Pearson correlation coefficient of X and Y
 float pearson(float* x, float* y, int size){
+    //initialize variables for the function
     float pearson, covXY, sigmaX, sigmaY;
+    //calculating sigma x,y using square of the variance
     sigmaX = sqrt(var(x, size));
     sigmaY = sqrt(var(y, size));
+    //calculating covariance using cov function
     covXY = cov(x, y, size);
+    //calculating pearson using the equation - pearson(X,Y) = cov(X,Y)/(sqrt(var(X) * sqrt(var(Y)))
     pearson = covXY/(sigmaX * sigmaY);
     return pearson;
 }
