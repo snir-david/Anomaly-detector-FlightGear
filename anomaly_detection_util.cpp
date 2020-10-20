@@ -8,11 +8,13 @@
 #include "anomaly_detection_util.h"
 
 float avg(float* x, int size){
-    float avg, sum = 0;
+    float avg = 0, sum = 0;
     for (int i = 0; i < size; ++i) {
         sum += x[i];
     }
-    avg = (1.00 / (float) size) * sum;
+    if (size > 0) {
+        avg = (1.00 / (float) size) * sum;
+    }
     return avg;
 }
 
