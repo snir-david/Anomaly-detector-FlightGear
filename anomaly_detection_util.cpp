@@ -1,5 +1,5 @@
 /*
- * animaly_detection_util.cpp
+ * anomaly_detection_util.cpp
  *
  * Author: Snir David Nahari 205686538
  */
