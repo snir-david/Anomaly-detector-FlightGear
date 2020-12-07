@@ -25,13 +25,14 @@ TimeSeries::TimeSeries(const char *CSVfileName) {
             mapIt++;
         }
     }
+    csvFile.close();
 }
 
-list<string> TimeSeries::getFeaturesName() {
+list<string> TimeSeries::getFeaturesName() const {
     return featuresNameList;
 }
 
-map<string, vector<float>> TimeSeries::getMap() {
+map<string, vector<float>> TimeSeries::getMap() const {
     return dataMap;
 }
 

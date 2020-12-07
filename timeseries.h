@@ -17,9 +17,9 @@ public:
     list<string> featuresNameList;
     map<string, vector<float>> dataMap;
     TimeSeries(const char *CSVfileName);
-    list<string> getFeaturesName();
-    map<string, vector<float>> getMap();
-    float dataInSpecificTime(map<string, vector<float>>);
+    list<string> getFeaturesName() const;
+    map<string, vector<float>> getMap() const;
+    float dataInSpecificTime(map<string, vector<float>>) const;
     void addingDataToMap();
 
 };

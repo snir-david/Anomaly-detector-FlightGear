@@ -17,22 +17,16 @@ struct correlatedFeatures{
 	float threshold;
 };
 
-
 class SimpleAnomalyDetector:public TimeSeriesAnomalyDetector{
-	vector<correlatedFeatures> cf;
+	vector<correlatedFeatures> correlatedFeaturesList;
 public:
 	SimpleAnomalyDetector();
 	virtual ~SimpleAnomalyDetector();
-
 	virtual void learnNormal(const TimeSeries& ts);
 	virtual vector<AnomalyReport> detect(const TimeSeries& ts);
-
 	vector<correlatedFeatures> getNormalModel(){
-		return cf;
+		return correlatedFeaturesList;
 	}
-
 };
-
-
 
 #endif /* SIMPLEANOMALYDETECTOR_H_ */
