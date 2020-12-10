@@ -1,5 +1,7 @@
 #include "timeseries.h"
 
+/* TimeSeries constructor - opening csv file entering the data to a map
+ * first row is the features name after that is the data. */
 TimeSeries::TimeSeries(const char *CSVfileName) {
     //fields for time series
     fstream csvFile;
@@ -25,13 +27,16 @@ TimeSeries::TimeSeries(const char *CSVfileName) {
             mapIt++;
         }
     }
+    //closing csv file
     csvFile.close();
 }
 
+/* Getter for features name */
 list<string> TimeSeries::getFeaturesName() const {
     return featuresNameList;
 }
 
+/* Getter for map data */
 map<string, vector<float>> TimeSeries::getMap() const {
     return dataMap;
 }

@@ -13,15 +13,16 @@ using namespace std;
 
 class TimeSeries {
 public:
-    const char* csvFileName;
+    //fields of Time Series class
+    const char *csvFileName;
     list<string> featuresNameList;
     map<string, vector<float>> dataMap;
-    TimeSeries(const char *CSVfileName);
-    list<string> getFeaturesName() const;
-    map<string, vector<float>> getMap() const;
-    float dataInSpecificTime(map<string, vector<float>>) const;
-    void addingDataToMap();
 
+    TimeSeries(const char *CSVfileName);
+
+    list<string> getFeaturesName() const;
+
+    map<string, vector<float>> getMap() const;
 };
 
 
