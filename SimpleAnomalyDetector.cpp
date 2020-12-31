@@ -3,7 +3,9 @@
 
 SimpleAnomalyDetector::SimpleAnomalyDetector() {}
 
-SimpleAnomalyDetector::~SimpleAnomalyDetector() {}
+SimpleAnomalyDetector::~SimpleAnomalyDetector() {
+
+}
 
 /* learn the normal by getting time series object. checking all features and finding
  * the ones that correlative - saving them in list.*/
@@ -40,6 +42,10 @@ void SimpleAnomalyDetector::learnNormal(const TimeSeries &ts) {
                     //saving the correlated features and pushing it to the list
                     struct correlatedFeatures c = {mapIt1->first, mapIt2->first, pearsonResult, regLine, maxThrs};
                     correlatedFeaturesList.push_back(c);
+                    //freeing memory that allocated
+                    for (int i = 0; i < arrSize; i++) {
+                       delete points[i];
+                    }
                 }
             }
         }
