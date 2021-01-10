@@ -1,10 +1,79 @@
 #include <iostream>
 #include "SimpleAnomalyDetector.h"
 
+using namespace std;
+
 SimpleAnomalyDetector::SimpleAnomalyDetector() {}
 
 SimpleAnomalyDetector::~SimpleAnomalyDetector() {
 
+}
+
+float SimpleAnomalyDetector::pearsonRes(std::map<string, vector<float>>::iterator &mapIt1,
+                                        std::map<string, vector<float>>::iterator &mapIt2) {
+    float pearsonResult;
+    //checking pearson for the features
+    pearsonResult = pearson(mapIt1->second.data(), mapIt2->second.data(), mapIt1->second.size());
+    return pearsonResult;
+}
+
+float SimpleAnomalyDetector::findThreshold(Point **points, int arrSize, Line regLine) {
+    float threshold;
+    //checking distance between line reg and every point - saving the max distance
+    for (int i = 0; i < arrSize; i++) {
+        float tmp = dev(*points[i], regLine);
+        if (tmp > threshold) {
+            threshold = tmp;
+        }
+    }
+    return threshold;
+}
+
+void SimpleAnomalyDetector::pointsToArr(Point **points, int arrSize, std::map<string, vector<float>>::iterator &mapIt1,
+                                            std::map<string, vector<float>>::iterator &mapIt2){
+//first build an array of points for the features
+    for (int i = 0; i < arrSize; i++) {
+        points[i] = new Point(mapIt1->second[i], mapIt2->second[i]);
+    }
+}
+
+Line SimpleAnomalyDetector::drawLineReg(Point **points, int arrSize, std::map<string, vector<float>>::iterator &mapIt1,
+                                        std::map<string, vector<float>>::iterator &mapIt2) {
+    //drawing line reg for the features
+    Line regLine = linear_reg(points, mapIt1->second.size());
+    return regLine;
+}
+
+void SimpleAnomalyDetector::findCorrelated(std::map<string, vector<float>> &map,
+                                           std::map<string, vector<float>>::iterator &mapIt1,
+                                           std::map<string, vector<float>>::iterator &mapIt2) {
+    int arrSize = map.begin()->second.size();
+    float pearsonResult;
+    //checking the first half of the features against all other features
+    for (mapIt1 = map.begin(); mapIt1 != map.end(); mapIt1++) {
+        for (mapIt2 = next(mapIt1, 1); mapIt2 != map.end(); mapIt2++) {
+            //checking if the features are not equals
+            if (mapIt1 != mapIt2) {
+                pearsonResult = pearsonRes(mapIt1, mapIt2);
+                //if pearson is bigger than |0.9| - if it is the features are correlative
+                if (pearsonResult >= 0.9 || pearsonResult <= -0.9) {
+                    Point *points[arrSize];
+                    pointsToArr(points, arrSize, mapIt1, mapIt2);
+                    Line regLine = drawLineReg(points, arrSize, mapIt1, mapIt2);
+                    //saving threshold as the furthest point from reg line multiply by 1.1
+                    float maxThrs = 1.1 * findThreshold(points, arrSize, regLine);
+                    //saving the correlated features and pushing it to the list
+                    struct correlatedFeatures c = {mapIt1->first, mapIt2->first, pearsonResult, regLine, maxThrs};
+                    correlatedFeaturesList.push_back(c);
+
+                    //freeing memory that allocated
+                    for (int i = 0; i < arrSize; i++) {
+                        delete points[i];
+                    }
+                }
+            }
+        }
+    }
 }
 
 /* learn the normal by getting time series object. checking all features and finding
@@ -12,44 +81,8 @@ SimpleAnomalyDetector::~SimpleAnomalyDetector() {
 void SimpleAnomalyDetector::learnNormal(const TimeSeries &ts) {
     map<string, vector<float>>::iterator mapIt1, mapIt2;
     map<string, vector<float>> map = ts.getMap();
-    float pearsonResult, threshold = 0;
-    int arrSize = map.begin()->second.size(), mapSize = map.size(), idx = 0;
-    //checking the first half of the features against all other features
-    for (mapIt1 = map.begin(); mapIt1 != map.end(); mapIt1++, idx++) {
-        for (mapIt2 = next(mapIt1,1); mapIt2 != map.end(); mapIt2++) {
-            //checking if the features are not equals
-            if (mapIt1 != mapIt2) {
-                //checking pearson for the features
-                pearsonResult = pearson(mapIt1->second.data(), mapIt2->second.data(), mapIt1->second.size());
-                //if pearson is bigger than |0.9| - if it is the features are correlative
-                if (pearsonResult >= 0.9 || pearsonResult <= -0.9) {
-                    //checking line reg for the features
-                    //first build an array of points for the features
-                    Point *points[arrSize];
-                    for (int i = 0; i < arrSize; i++) {
-                        points[i] = new Point(mapIt1->second[i], mapIt2->second[i]);
-                    }
-                    Line regLine = linear_reg(points, mapIt1->second.size());
-                    //checking distance between line reg and every point - saving the max distance
-                    for (int i = 0; i < arrSize; i++) {
-                        float tmp = dev(*points[i], regLine);
-                        if (tmp > threshold) {
-                            threshold = tmp;
-                        }
-                    }
-                    //saving threshold as the furthest point from reg line multiply by 1.1
-                    float maxThrs = 1.1 * threshold;
-                    //saving the correlated features and pushing it to the list
-                    struct correlatedFeatures c = {mapIt1->first, mapIt2->first, pearsonResult, regLine, maxThrs};
-                    correlatedFeaturesList.push_back(c);
-                    //freeing memory that allocated
-                    for (int i = 0; i < arrSize; i++) {
-                       delete points[i];
-                    }
-                }
-            }
-        }
-    }
+    //finding and saving correlated features (bigger than 0.9)
+    findCorrelated(map, mapIt1, mapIt2);
 }
 
 /* detecting anomaly - giving a correlated features list checking new time series to find any anomaly

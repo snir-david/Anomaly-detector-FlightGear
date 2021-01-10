@@ -10,7 +10,7 @@ class HybridAnomalyDetector:public SimpleAnomalyDetector {
 public:
 	HybridAnomalyDetector();
 	virtual ~HybridAnomalyDetector();
-
+    void learnNormal(const TimeSeries &ts);
 };
 
 #endif /* HYBRIDANOMALYDETECTOR_H_ */

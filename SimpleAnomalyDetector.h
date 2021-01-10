@@ -10,6 +10,7 @@
 #include <string.h>
 #include <math.h>
 
+
 struct correlatedFeatures{
 	string feature1,feature2;  // names of the correlated features
 	float corrlation;
@@ -19,14 +20,22 @@ struct correlatedFeatures{
 
 class SimpleAnomalyDetector:public TimeSeriesAnomalyDetector{
 	vector<correlatedFeatures> correlatedFeaturesList;
-public:
+public
 	SimpleAnomalyDetector();
 	virtual ~SimpleAnomalyDetector();
-	virtual void learnNormal(const TimeSeries& ts);
+    float pearsonRes(std::map<string, vector<float>>::iterator &mapIt1,
+                     std::map<string, vector<float>>::iterator &mapIt2);
+    float findThreshold(Point **points, int arrSize, Line regLine);
+    Line drawLineReg(Point **points, int arrSize, std::map<string, vector<float>>::iterator &mapIt1,
+                     std::map<string, vector<float>>::iterator &mapIt2);
+    virtual void findCorrelated(std::map<string, vector<float>> &map, std::map<string, vector<float>>::iterator &mapIt1, std::map<string, vector<float>>::iterator &mapIt2);
+    virtual void learnNormal(const TimeSeries& ts);
 	virtual vector<AnomalyReport> detect(const TimeSeries& ts);
 	vector<correlatedFeatures> getNormalModel(){
 		return correlatedFeaturesList;
 	}
+    void pointsToArr(Point **points, int arrSize, map<string, vector<float>>::iterator &mapIt1,
+                     map<string, vector<float>>::iterator &mapIt2);
 };
 
 #endif /* SIMPLEANOMALYDETECTOR_H_ */
