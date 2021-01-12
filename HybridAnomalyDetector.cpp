@@ -19,7 +19,7 @@ void HybridAnomalyDetector::learnNormal(const TimeSeries &ts) {
             //checking if the features are not equals
             if (mapIt1 != mapIt2) {
                 pearsonResult = pearsonRes(mapIt1, mapIt2);
-                if (isCorrelated(pearsonResult, 0.9)) {
+                if (isCorrelated(pearsonResult, threshold)) {
                     pointsToArr(points, arrSize, mapIt1, mapIt2);
                     Line regLine = drawLineReg(points, arrSize, mapIt1, mapIt2);
                     //saving threshold as the furthest point from reg line multiply by 1.1

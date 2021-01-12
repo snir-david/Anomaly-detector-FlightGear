@@ -8,6 +8,9 @@
 
 class HybridAnomalyDetector : public SimpleAnomalyDetector {
 public:
+    float threshold = 0.9;
+    vector<correlatedFeatures> correlatedFeaturesList;
+
     HybridAnomalyDetector();
 
     virtual ~HybridAnomalyDetector();
