@@ -23,6 +23,8 @@ public:
     list<string> getFeaturesName() const;
 
     map<string, vector<float>> getMap() const;
+
+    int getMapSize();
 };
 
 

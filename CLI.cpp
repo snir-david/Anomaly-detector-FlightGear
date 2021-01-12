@@ -10,7 +10,7 @@ CLI::CLI(DefaultIO *dio) {
     commandsMap[1] = unique_ptr<Command>(new algorithmSetting(dio, &cu));
     commandsMap[2] = unique_ptr<Command>(new detectAnomalies(dio, &cu));
     commandsMap[3] = unique_ptr<Command>(new displayResult(dio, &cu));
-    commandsMap[4] = unique_ptr<Command>(new uploadAnomaliesAndAnalyze(dio));
+    commandsMap[4] = unique_ptr<Command>(new uploadAnomaliesAndAnalyze(dio, &cu));
     commandsMap[5] = unique_ptr<Command>(new exitCLI(dio));
 }
 
@@ -18,7 +18,7 @@ void CLI::start() {
     int userInput;
     string commandNum;
     commandNum = dio->read();
-    while (commandNum != "") {
+    while (commandNum != " ") {
         cout << "Welcome to the Anomaly Detection Server.\r"
                 "Please choose an option:\r"
                 "1. upload a time series csv file\r"

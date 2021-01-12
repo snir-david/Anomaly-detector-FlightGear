@@ -41,6 +41,10 @@ map<string, vector<float>> TimeSeries::getMap() const {
     return dataMap;
 }
 
+int TimeSeries::getMapSize() {
+    return dataMap.begin()->second.size();
+}
+
 
 
 

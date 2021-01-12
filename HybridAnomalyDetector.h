@@ -8,8 +8,7 @@
 
 class HybridAnomalyDetector : public SimpleAnomalyDetector {
 public:
-    float threshold = 0.9;
-    vector<correlatedFeatures> correlatedFeaturesList;
+    double threshold = 0.9;
 
     HybridAnomalyDetector();
 
