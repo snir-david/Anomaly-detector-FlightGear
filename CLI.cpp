@@ -30,12 +30,13 @@ void CLI::start() {
     while (!exitCLI) {
         this->dio->write(menu);
         commandNum = this->dio->read();
-        userInput = stoi(commandNum)-1;
-        if (userInput >= 0 && userInput <=5){
-            this->commandsArray[userInput]->execute();
-        }
+        userInput = stoi(commandNum);
+        userInput -= 1;
         if (commandNum == "6") {
             exitCLI = true;
+        }
+        else if (userInput >= 0 && userInput <=4) {
+            this->commandsArray[userInput]->execute();
         }
     }
 }
