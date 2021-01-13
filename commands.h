@@ -54,24 +54,24 @@ public:
 
     void execute() override {
         fstream trainCSV, testCSV;
-        string inputData;
+        string inputData, uploadTestCSV =  "Please upload your local test CSV file.\n",
+        uploadTrainCSV = "Please upload your local train CSV file.\n", complete = "Upload complete.\n";
         trainCSV.open("anomalyTrain.csv", ios::out);
-        cout << "Please upload your local train CSV file" << endl;
+        dio->write(uploadTrainCSV);
         inputData = dio->read();
         while (inputData != "done") {
             trainCSV << inputData << endl;
             inputData = dio->read();
         }
-        cout << "Upload complete" << endl;
-
+        dio->write(complete);
         testCSV.open("anomalyTest.csv", ios::out);
-        cout << "Please upload your local test CSV file" << endl;
+        dio->write(uploadTestCSV);
         inputData = dio->read();
         while (inputData != "done") {
             testCSV << inputData << endl;
             inputData = dio->read();
         }
-        cout << "Upload complete" << endl;
+        dio->write(complete);
     }
 };
 
@@ -82,11 +82,13 @@ public:
     };
 
     void execute() override {
-        cout << "The current correlation threshold is 0.9\r"
-                "Type a new threshold" << endl;
+        string currentCorrelation = "The current correlation threshold is 0.9\n"
+                "Type a new threshold\n";
+        string chooseValue = "please choose a value between 0 and 1.\n";
+        dio->write(currentCorrelation);
         cu->newThreshold = stof(dio->read());
         while (cu->newThreshold < 0 || cu->newThreshold > 1) {
-            cout << "please choose a value between 0 and 1." << endl;
+            dio->write(chooseValue);
             cu->newThreshold = stof(dio->read());
         }
     }
@@ -100,12 +102,13 @@ public:
     };
 
     void execute() override {
+        string detectCompl = "anomaly detection complete.\n";
         shared_ptr<HybridAnomalyDetector> had(new HybridAnomalyDetector());
         TimeSeries trainCSV("anomalyTrain.csv"), testCSV("anomalyTest.csv");
         had->learnNormal(trainCSV);
         had->detect(testCSV);
         cu->had = had;
-        cout << "anomaly detection complete." << endl;
+        dio->write(detectCompl);
     }
 
 };
@@ -117,11 +120,12 @@ public:
     };
 
     void execute() override {
+        string done = "Done.\n";
         for (int i = 0; i < cu->had->anomalyReport.size(); i++) {
-            string s = to_string(cu->had->anomalyReport[i].timeStep) + "\t" + cu->had->anomalyReport[i].description;
-            cout << s << endl;
+            string s = to_string(cu->had->anomalyReport[i].timeStep) + " \t" + cu->had->anomalyReport[i].description + "\n";
+            dio->write(s);
         }
-        cout << "Done." << endl;
+        dio->write(done);
     }
 
 };
@@ -133,13 +137,14 @@ public:
     };
 
     void execute() override {
-        string inputData;
+        string inputData, uploadAnomalies = "Please upload your local anomalies file.\n", complete = "Upload complete.\n",
+                TPstring, FPstring;
+        stringstream  TPs, FPs;
         vector<pair<int, int>> timeStamps, anomalyRange;
         int positive = 0, negative = TimeSeries("anomalyTest.csv").getMapSize(), FP = 0, TP = 0;
         long firstTimeStamp;
         float truePositiveRate, falseAlarmRate;
-        cout << "Please upload your local anomalies file." << endl;
-
+        dio->write(uploadAnomalies);
         for (int i = 0; i < cu->had->anomalyReport.size() - 1; i++) {
             firstTimeStamp = cu->had->anomalyReport[i].timeStep;
             while (cu->had->anomalyReport[i].description == cu->had->anomalyReport[i + 1].description &&
@@ -161,7 +166,7 @@ public:
             inputData = dio->read();
             positive++;
         }
-        cout << "Upload complete" << endl;
+        dio->write(complete);
         for (int i = 0; i < anomalyRange.size(); i++) {
             bool cut = false;
             for (int j = 0; j < timeStamps.size(); j++) {
@@ -176,24 +181,32 @@ public:
                 FP++;
             }
         }
+        //setting up numbers for printing 3 numbers after the point
         truePositiveRate = (TP * 1000 / positive) ;
         falseAlarmRate = (FP * 1000 / negative) ;
         truePositiveRate = floor(truePositiveRate);
         truePositiveRate = truePositiveRate/1000;
+        TPs << truePositiveRate;
+        TPstring = TPs.str();
         falseAlarmRate = floor(falseAlarmRate);
         falseAlarmRate = falseAlarmRate/1000;
-        cout << "True Positive Rate: " << truePositiveRate <<endl;
-        cout << "False Positive Rate: " << falseAlarmRate <<endl;
+        FPs << falseAlarmRate;
+        FPstring = FPs.str();
+        string truePositive = "True Positive Rate: " + TPstring +"\n";
+        string falsePositive = "False Positive Rate: " + FPstring +"\n";
+        dio->write(truePositive);
+        dio->write(falsePositive);
     }
 
 };
 
 class exitCLI : public Command {
 public:
-    exitCLI(DefaultIO *dio) : Command(dio) {};
+    exitCLI(DefaultIO *dio, CommandUtil *cu) : Command(dio) {
+        this->cu = cu;
+    };
 
     void execute() override {
-        exit(0);
     }
 
 };

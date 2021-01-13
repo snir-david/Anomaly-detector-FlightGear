@@ -10,9 +10,10 @@
 using namespace std;
 
 class CLI {
+public:
     DefaultIO *dio;
     map<int, unique_ptr<Command>> commandsMap;
-public:
+
     CLI(DefaultIO *dio);
 
     void start();
