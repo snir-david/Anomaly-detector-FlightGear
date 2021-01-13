@@ -1,14 +1,16 @@
 #include "HybridAnomalyDetector.h"
+#include "minCircle.h"
 
-HybridAnomalyDetector::HybridAnomalyDetector() {
+HybridAnomalyDetector::HybridAnomalyDetector(): SimpleAnomalyDetector() {
+    this->threshold = 0.9;
 }
 
 HybridAnomalyDetector::~HybridAnomalyDetector() {
 }
 
 void HybridAnomalyDetector::learnNormal(const TimeSeries &ts) {
-    map<string, vector<float>>::iterator mapIt1, mapIt2;
-    map<string, vector<float>> map = ts.getMap();
+    map<string, vector<float> >::iterator mapIt1, mapIt2;
+    map<string, vector<float> > map = ts.getMap();
     float pearsonResult;
     //initialize mapIt2 iterator and points array
     int arrSize = map.begin()->second.size();

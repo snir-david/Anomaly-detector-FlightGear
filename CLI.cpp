@@ -1,40 +1,48 @@
 #include "CLI.h"
-#include <memory>
-
-using namespace std;
 
 CLI::CLI(DefaultIO *dio) {
     this->dio = dio;
     CommandUtil commandUtil;
-    commandsMap[0] = unique_ptr<Command>(new uploadCSV(dio));
-    commandsMap[1] = unique_ptr<Command>(new algorithmSetting(dio, &commandUtil));
-    commandsMap[2] = unique_ptr<Command>(new detectAnomalies(dio, &commandUtil));
-    commandsMap[3] = unique_ptr<Command>(new displayResult(dio, &commandUtil));
-    commandsMap[4] = unique_ptr<Command>(new uploadAnomaliesAndAnalyze(dio, &commandUtil));
-    commandsMap[5] = unique_ptr<Command>(new exitCLI(dio, &commandUtil));
+    this->cu = commandUtil;
+
+    //insert command into array
+    this->commandsArray[0] = new uploadCSV(dio);
+    this->commandsArray[1] = new algorithmSetting(dio, &cu);
+    this->commandsArray[2] = new detectAnomalies(dio, &cu);
+    this->commandsArray[3] = new displayResult(dio, &cu);
+    this->commandsArray[4] = new uploadAnomaliesAndAnalyze(dio, &cu);
+    this->commandsArray[5] = new exitCLI(dio);
 }
 
 void CLI::start() {
     int userInput;
+    bool exitCLI = false;
     string commandNum,
-     menu =  "Welcome to the Anomaly Detection Server.\r"
-                   "Please choose an option:\r"
-                   "1.upload a time series csv file\r"
-                   "2.algorithm settings\r"
-                   "3.detect anomalies\r"
-                   "4.display results\r"
-                   "5.upload anomalies and analyze results\r"
-                   "6.exit\r";
+     menu =  "Welcome to the Anomaly Detection Server.\n"
+                   "Please choose an option:\n"
+                   "1.upload a time series csv file\n"
+                   "2.algorithm settings\n"
+                   "3.detect anomalies\n"
+                   "4.display results\n"
+                   "5.upload anomalies and analyze results\n"
+                   "6.exit\n";
 
-    while (commandNum != "6") {
-        dio->write(menu);
-        commandNum = dio->read();
-        userInput = stoi(commandNum);
-        commandsMap[userInput - 1]->execute();
+    while (!exitCLI) {
+        this->dio->write(menu);
+        commandNum = this->dio->read();
+        userInput = stoi(commandNum)-1;
+        if (userInput >= 0 && userInput <=5){
+            this->commandsArray[userInput]->execute();
+        }
+        if (commandNum == "6") {
+            exitCLI = true;
+        }
     }
 }
 
-
 CLI::~CLI() {
+    for (int i = 0; i < 6; i++){
+        delete commandsArray[i];
+    }
 }
 

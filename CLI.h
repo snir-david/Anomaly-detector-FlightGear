@@ -12,7 +12,8 @@ using namespace std;
 class CLI {
 public:
     DefaultIO *dio;
-    map<int, unique_ptr<Command>> commandsMap;
+    CommandUtil cu;
+    Command* commandsArray[6];
 
     CLI(DefaultIO *dio);
 

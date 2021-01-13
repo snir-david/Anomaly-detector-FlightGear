@@ -31,10 +31,6 @@ TimeSeries::TimeSeries(const char *CSVfileName) {
     csvFile.close();
 }
 
-/* Getter for features name */
-list<string> TimeSeries::getFeaturesName() const {
-    return featuresNameList;
-}
 
 /* Getter for map data */
 map<string, vector<float>> TimeSeries::getMap() const {

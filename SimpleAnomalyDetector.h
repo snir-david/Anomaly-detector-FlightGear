@@ -30,22 +30,22 @@ public:
 
     virtual ~SimpleAnomalyDetector();
 
-    float pearsonRes(std::map<string, vector<float>>::iterator &mapIt1,
-                     std::map<string, vector<float>>::iterator &mapIt2);
+    void insertCorrelatedFeature(string correlatedFeature1,
+                                 string correlatedFeature2,
+                                 float pearsonResult, Line regLine, Point circleCenter, float maxThreshold);
+
+    float pearsonRes(std::map<string, vector<float> >::iterator &mapIt1,
+                     std::map<string, vector<float> >::iterator &mapIt2);
 
     float findThreshold(Point **points, int arrSize, Line regLine);
 
-    Line drawLineReg(Point **points, int arrSize, std::map<string, vector<float>>::iterator &mapIt1,
-                     std::map<string, vector<float>>::iterator &mapIt2);
+    Line drawLineReg(Point **points, int arrSize, std::map<string, vector<float> >::iterator &mapIt1,
+                     std::map<string, vector<float> >::iterator &mapIt2);
 
     bool isCorrelated(float pearsonResult, float pearsonExpected);
 
-    void pointsToArr(Point **points, int arrSize, map<string, vector<float>>::iterator &mapIt1,
-                     map<string, vector<float>>::iterator &mapIt2);
-
-    void insertCorrelatedFeature(string correlatedFeature1,
-                                 string correlatedFeature2,
-                                 float pearsonResult, Line regLine, Point circleCenter, float maxThrs);
+    void pointsToArr(Point **points, int arrSize, map<string, vector<float> >::iterator &mapIt1,
+                     map<string, vector<float> >::iterator &mapIt2);
 
     virtual void learnNormal(const TimeSeries &ts);
 
@@ -59,8 +59,8 @@ public:
 
     void insertAnomaly(int featureIdx, string feature1, string feature2);
 
-    void findAnomalyInCorrelatedFeatures(int i, map<string, vector<float>>::const_iterator &feature1It,
-                                         map<string, vector<float>>::const_iterator &feature2It);
+    void findAnomalyInCorrelatedFeatures(int i, map<string, vector<float> >::const_iterator &feature1It,
+                                         map<string, vector<float> >::const_iterator &feature2It);
 };
 
 #endif /* SIMPLEANOMALYDETECTOR_H_ */

@@ -16,16 +16,13 @@ public:
     //fields of Time Series class
     const char *csvFileName;
     list<string> featuresNameList;
-    map<string, vector<float>> dataMap;
+    map<string, vector<float> > dataMap;
 
     TimeSeries(const char *CSVfileName);
 
-    list<string> getFeaturesName() const;
-
-    map<string, vector<float>> getMap() const;
+    map<string, vector<float> > getMap() const;
 
     int getMapSize();
 };
-
 
 #endif /* TIMESERIES_H_ */

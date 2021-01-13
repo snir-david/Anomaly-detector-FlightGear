@@ -6,12 +6,9 @@
 #include<iostream>
 #include <string.h>
 #include <fstream>
-#include <iomanip>
 #include <vector>
 #include <memory>
 #include "HybridAnomalyDetector.h"
-
-using namespace std;
 
 class DefaultIO {
 public:
@@ -27,7 +24,6 @@ public:
 
     // you may add additional methods here
 };
-
 class CommandUtil {
 public:
     double newThreshold;
@@ -53,25 +49,37 @@ public:
     };
 
     void execute() override {
-        fstream trainCSV, testCSV;
+        ofstream trainCSV, testCSV;
         string inputData, uploadTestCSV =  "Please upload your local test CSV file.\n",
         uploadTrainCSV = "Please upload your local train CSV file.\n", complete = "Upload complete.\n";
-        trainCSV.open("anomalyTrain.csv", ios::out);
+        //open trainCSV file
+        trainCSV.open("anomalyTrain.csv");
+        //read from dio trainCSV data
         dio->write(uploadTrainCSV);
         inputData = dio->read();
+        //keep reading until gettig from user "done"
         while (inputData != "done") {
+            //inserting data to trainCSV and keep to the next line
+
             trainCSV << inputData << endl;
             inputData = dio->read();
         }
         dio->write(complete);
-        testCSV.open("anomalyTest.csv", ios::out);
+        //open testCSV file
+        testCSV.open("anomalyTest.csv");
+        //read from dio testCSV data
         dio->write(uploadTestCSV);
         inputData = dio->read();
+        //keep reading until gettig from user "done"
         while (inputData != "done") {
+            //inserting data to testCSV and keep to the next line
             testCSV << inputData << endl;
             inputData = dio->read();
         }
         dio->write(complete);
+        //closing files
+        trainCSV.close();
+        testCSV.close();
     }
 };
 
@@ -85,9 +93,11 @@ public:
         string currentCorrelation = "The current correlation threshold is 0.9\n"
                 "Type a new threshold\n";
         string chooseValue = "please choose a value between 0 and 1.\n";
+        //displaying current correlaction and asking new one
         dio->write(currentCorrelation);
         cu->newThreshold = stof(dio->read());
-        while (cu->newThreshold < 0 || cu->newThreshold > 1) {
+        //checking if correlation is in valid rang  [0,1]
+        while (cu->newThreshold <= 0 || cu->newThreshold >= 1) {
             dio->write(chooseValue);
             cu->newThreshold = stof(dio->read());
         }
@@ -105,12 +115,13 @@ public:
         string detectCompl = "anomaly detection complete.\n";
         shared_ptr<HybridAnomalyDetector> had(new HybridAnomalyDetector());
         TimeSeries trainCSV("anomalyTrain.csv"), testCSV("anomalyTest.csv");
+        //getting info to Hybrid Anomaly Detector object
         had->learnNormal(trainCSV);
         had->detect(testCSV);
+        //pointing to the same object using shared_ptr
         cu->had = had;
         dio->write(detectCompl);
     }
-
 };
 
 class displayResult : public Command {
@@ -121,13 +132,13 @@ public:
 
     void execute() override {
         string done = "Done.\n";
+        //dio writing the anomaly report results
         for (int i = 0; i < cu->had->anomalyReport.size(); i++) {
             string s = to_string(cu->had->anomalyReport[i].timeStep) + " \t" + cu->had->anomalyReport[i].description + "\n";
             dio->write(s);
         }
         dio->write(done);
     }
-
 };
 
 class uploadAnomaliesAndAnalyze : public Command {
@@ -140,11 +151,13 @@ public:
         string inputData, uploadAnomalies = "Please upload your local anomalies file.\n", complete = "Upload complete.\n",
                 TPstring, FPstring;
         stringstream  TPs, FPs;
-        vector<pair<int, int>> timeStamps, anomalyRange;
+        vector<pair<int, int> > timeStamps, anomalyRange;
         int positive = 0, negative = TimeSeries("anomalyTest.csv").getMapSize(), FP = 0, TP = 0;
         long firstTimeStamp;
         float truePositiveRate, falseAlarmRate;
         dio->write(uploadAnomalies);
+        //checking anomaly reports vs. user anomaly
+        //first join continuous reports in anomaly reports
         for (int i = 0; i < cu->had->anomalyReport.size() - 1; i++) {
             firstTimeStamp = cu->had->anomalyReport[i].timeStep;
             while (cu->had->anomalyReport[i].description == cu->had->anomalyReport[i + 1].description &&
@@ -154,29 +167,38 @@ public:
             pair<int, int> pair(firstTimeStamp, cu->had->anomalyReport[i].timeStep);
             anomalyRange.push_back(pair);
         }
-
+        //read from dio anomalies
         inputData = dio->read();
+        //while data is != done - keep reading from dio
         while (inputData != "done") {
+            //separte time stams by usin "," as declma
             int pos = inputData.find(",");
             string s1 = inputData.substr(0, pos);
             string s2 = inputData.substr(pos + 1);
+            //inserting timestamps range [s1,s2] into vector
             pair<int, int> pair(stoi(s1), stoi(s2));
             timeStamps.push_back(pair);
+            //subtract range from n (negative)
             negative -= (stoi(s2) - stoi(s1));
             inputData = dio->read();
+            //adding 1 to P (positive)
             positive++;
         }
         dio->write(complete);
+        //checking our anomaly report vs. user report
         for (int i = 0; i < anomalyRange.size(); i++) {
             bool cut = false;
             for (int j = 0; j < timeStamps.size(); j++) {
-                if ((timeStamps[j].second > anomalyRange[i].first && anomalyRange[i].second > timeStamps[j].second) ||
-                    (timeStamps[j].first > anomalyRange[i].first && anomalyRange[i].second > timeStamps[j].first) ||
-                        (timeStamps[j].first < anomalyRange[i].first && anomalyRange[i].second < timeStamps[j].second)) {
+                //checking if user range has an overlap with one of our anomaly reports
+                if ((timeStamps[j].second >= anomalyRange[i].first && anomalyRange[i].second >= timeStamps[j].second) ||
+                    (timeStamps[j].first >= anomalyRange[i].first && anomalyRange[i].second >= timeStamps[j].first) ||
+                        (timeStamps[j].first <= anomalyRange[i].first && anomalyRange[i].second <= timeStamps[j].second)) {
+                    //if there is an overlap - increase TP
                     TP++;
                     cut = true;
                 }
             }
+            //if there wasn't an overlap at all - false positive report, increase FP
             if (!cut) {
                 FP++;
             }
@@ -202,13 +224,13 @@ public:
 
 class exitCLI : public Command {
 public:
-    exitCLI(DefaultIO *dio, CommandUtil *cu) : Command(dio) {
-        this->cu = cu;
+    exitCLI(DefaultIO *dio) : Command(dio) {
     };
 
     void execute() override {
     }
 
 };
+
 
 #endif /* COMMANDS_H_ */

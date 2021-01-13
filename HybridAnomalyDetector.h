@@ -8,8 +8,7 @@
 
 class HybridAnomalyDetector : public SimpleAnomalyDetector {
 public:
-    double threshold = 0.9;
-
+    double threshold;
     HybridAnomalyDetector();
 
     virtual ~HybridAnomalyDetector();

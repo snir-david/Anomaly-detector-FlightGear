@@ -19,9 +19,9 @@ void SimpleAnomalyDetector::freePoints(Point **points, int arrSize) {
 void SimpleAnomalyDetector::insertCorrelatedFeature(string correlatedFeature1,
                                                     string correlatedFeature2,
                                                     float pearsonResult, Line regLine, Point circleCenter,
-                                                    float maxThrs) {
+                                                    float maxThreshold) {
     struct correlatedFeatures c = {correlatedFeature1, correlatedFeature2, pearsonResult, regLine, circleCenter,
-                                   maxThrs};
+                                   maxThreshold};
     correlatedFeaturesList.push_back(c);
 }
 

@@ -55,9 +55,9 @@ Circle threePointsCircle(Point a, Point b, Point c) {
     //else return circle with 3 points
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; ++j) {
-            Circle c = twoPointsCircle(points[i], points[j]);
-            if (isValidCircle(c, points)) {
-                return c;
+            Circle circle     = twoPointsCircle(points[i], points[j]);
+            if (isValidCircle(circle, points)) {
+                return circle;
             }
         }
     }
